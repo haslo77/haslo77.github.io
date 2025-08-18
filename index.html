@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Signal Generator · Telegram WebApp</title>
+  <style>
+    :root {
+      /* Fallback theme (overridden by Telegram theme params if present) */
+      --bg: #0f1220;
+      --card: #171a2b;
+      --text: #e7eaff;
+      --muted: #aab0d8;
+      --accent: #7c9cff;
+      --accent-contrast: #0b1022;
+      --danger: #ff6b6b;
+      --success: #6bffb0;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+
+    /* Telegram WebApp theming support */
+    :root[data-tg-theme="1"] {
+      --bg: var(--tg-theme-bg-color, #0f1220);
+      --card: var(--tg-theme-secondary-bg-color, #171a2b);
+      --text: var(--tg-theme-text-color, #e7eaff);
+      --muted: var(--tg-theme-hint-color, #aab0d8);
+      --accent: var(--tg-theme-button-color, #7c9cff);
+      --accent-contrast: var(--tg-theme-button-text-color, #0b1022);
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background:
+        radial-gradient(1200px 600px at -10% -10%, rgba(124,156,255,.20), transparent 40%),
+        radial-gradient(1000px 500px at 110% 10%, rgba(107,255,176,.10), transparent 40%),
+        var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    .wrap {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      width: min(720px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)), var(--card);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      backdrop-filter: blur(6px);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .logo {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #8ef8d7);
+      box-shadow: 0 6px 18px rgba(124,156,255,.35);
+    }
+
+    h1 { font-size: 20px; margin: 0; }
+    .muted { color: var(--muted); font-size: 13px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 680px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .field {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding: 14px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .value { font-size: 18px; font-weight: 600; }
+
+    .row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; user-select: none;
+      font-weight: 700; font-size: 16px; letter-spacing: .02em;
+      padding: 14px 16px; border-radius: 14px; border: none;
+      background: var(--accent); color: var(--accent-contrast);
+      box-shadow: 0 8px 18px rgba(124,156,255,.35);
+      transition: transform .05s ease, filter .2s ease, opacity .2s ease;
+      width: 100%;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn[disabled] { opacity: .6; cursor: not-allowed; box-shadow: none; }
+
+    .btn.secondary { background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,.12); box-shadow: none; }
+
+    .timer {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700; letter-spacing: .04em;
+    }
+
+    .footer { margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .hint { font-size: 12px; color: var(--muted); }
+
+    .chip {
+      display:inline-block; padding: 6px 10px; border-radius: 999px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
+      font-size: 12px; color: var(--muted);
+    }
+
+    .pill {
+      display:inline-block; padding: 6px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1 id="title">Signal Generator</h1>
+          <div class="muted" id="subtitle">Random OTC/FX signal for practice</div>
+        </div>
+        <div style="margin-left:auto" class="pill" id="lang-pill">EN</div>
+      </header>
+
+      <div class="grid" style="margin-top:12px">
+        <div class="field">
+          <div class="label" id="pair-label">Pair</div>
+          <div class="value" id="pair">—</div>
+        </div>
+        <div class="field">
+          <div class="label" id="direction-label">Direction</div>
+          <div class="value" id="direction">—</div>
+        </div>
+        <div class="field">
+          <div class="label" id="duration-label">Duration</div>
+          <div class="value"><span id="duration">—</span> <span class="muted" id="until"> </span></div>
+        </div>
+        <div class="field">
+          <div class="label" id="status-label">Status</div>
+          <div class="value" id="status">—</div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:16px">
+        <button class="btn" id="generate-btn">Generate signal</button>
+        <button class="btn secondary" id="copy-btn">Copy</button>
+      </div>
+
+      <div class="footer">
+        <div class="hint" id="hint"></div>
+        <div class="chip" id="timer-chip" style="display:none">⏳ <span class="timer" id="timer">00:00</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ————— i18n —————
+    const i18n = {
+      en: {
+        title: "PocketOption AI",
+        subtitle: "OTC/FX signal based on AI",
+        pair: "Pair",
+        direction: "Direction",
+        duration: "Duration",
+        status: "Status",
+        idle: "Ready",
+        active: "Active trade in progress",
+        expired: "Trade finished",
+        up: "UP",
+        down: "DOWN",
+        generate: "Take signal",
+        hint: " ",
+        copy: "Copy",
+        copied: "Copied!",
+        until: "· until",
+        minutes: "min",
+        seconds: "sec",
+        langPill: "EN"
+      },
+      ru: {
+        title: "PocketOption AI",
+        subtitle: "Генерирует OTC/FX сигнал на основе ИИ",
+        pair: "Пара",
+        direction: "Направление",
+        duration: "Время",
+        status: "Статус",
+        idle: "Готово",
+        active: "Идёт сделка",
+        expired: "Сделка завершена",
+        up: "ВВЕРХ",
+        down: "ВНИЗ",
+        generate: "Получить сигнал",
+        copy: "Скопировать",
+        copied: "Скопировано!",
+        hint: " ",
+        until: "· до",
+        minutes: "мин",
+        seconds: "сек",
+        langPill: "RU"
+      }
+    };
+
+    function getLang() {
+      const url = new URL(window.location.href);
+      const lang = (url.searchParams.get('language') || '').toLowerCase();
+      return lang === 'ru' ? 'ru' : 'en';
+    }
+
+    let L = i18n[getLang()];
+
+    function t(key) { return L[key] || key; }
+
+    function applyI18n() {
+      document.getElementById('title').textContent = t('title');
+      document.getElementById('subtitle').textContent = t('subtitle');
+      document.getElementById('pair-label').textContent = t('pair');
+      document.getElementById('direction-label').textContent = t('direction');
+      document.getElementById('duration-label').textContent = t('duration');
+      document.getElementById('status-label').textContent = t('status');
+      document.getElementById('generate-btn').textContent = t('generate');
+      document.getElementById('copy-btn').textContent = t('copy');
+      document.getElementById('hint').textContent = t('hint');
+      document.getElementById('lang-pill').textContent = t('langPill');
+    }
+
+    // ————— Data —————
+    const PAIRS = [
+      "GBP/USD OTC", "USD/CAD OTC", "EUR/GBP OTC", "EUR/JPY OTC", "GBP/JPY OTC", "AUD/NZD OTC",
+      "USD/RUB OTC", "CAD/JPY OTC", "CHF/JPY OTC", "EUR/CHF OTC", "AUD/CAD OTC", "AED/CNY OTC",
+      "EUR/USD", "BTC/USD", "XAU/USD", "ETH/USD", "USD/RUB", "USD/JPY", "GBP/USD", "USD/CHF",
+      "AUD/USD", "USD/CAD", "NZD/USD", "EUR/GBP", "EUR/JPY", "GBP/JPY", "AUD/JPY", "CHF/JPY",
+      "EUR/AUD", "EUR/CAD", "GBP/AUD", "GBP/CAD", "AUD/CAD", "AUD/CHF", "NZD/JPY", "NZD/CHF"
+    ];
+
+    const DURATIONS = [
+      { label: '30 ' + i18n.en.seconds, seconds: 30, labelRu: '30 ' + i18n.ru.seconds },
+      { label: '1 '  + i18n.en.minutes, seconds: 60, labelRu: '1 '  + i18n.ru.minutes },
+      { label: '3 '  + i18n.en.minutes, seconds: 180, labelRu: '3 '  + i18n.ru.minutes },
+      { label: '5 '  + i18n.en.minutes, seconds: 300, labelRu: '5 '  + i18n.ru.minutes }
+    ];
+
+    // ————— Helpers —————
+    function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    function pad(n){ return String(n).padStart(2,'0'); }
+
+    // Cookie helpers
+    function setCookie(name, value, days = 7) {
+      const expires = new Date(Date.now() + days*864e5).toUTCString();
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; samesite=lax`;
+    }
+    function getCookie(name){
+      return document.cookie.split('; ').reduce((r, v) => {
+        const parts = v.split('=');
+        return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+      }, '');
+    }
+    function deleteCookie(name){ document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`; }
+
+    // ————— State —————
+    let countdownInterval = null;
+    const SIGNAL_COOKIE = 'last_signal_v1';
+
+    function formatDurationLabel(seconds){
+      if(L===i18n.ru) {
+        const item = DURATIONS.find(d=>d.seconds===seconds); return item ? item.labelRu : seconds + ' ' + t('seconds');
+      } else {
+        const item = DURATIONS.find(d=>d.seconds===seconds); return item ? item.label : seconds + ' ' + t('seconds');
+      }
+    }
+
+    function updateUI(signal){
+      const pairEl = document.getElementById('pair');
+      const dirEl = document.getElementById('direction');
+      const durEl = document.getElementById('duration');
+      const untilEl = document.getElementById('until');
+      const statusEl = document.getElementById('status');
+
+      if(!signal){
+        pairEl.textContent = '—'; dirEl.textContent = '—'; durEl.textContent = '—'; untilEl.textContent = '';
+        statusEl.textContent = t('idle');
+        document.getElementById('timer-chip').style.display = 'none';
+        setBtnLocked(false);
+        return;
+      }
+
+      pairEl.textContent = signal.pair;
+      dirEl.textContent = signal.direction === 'up' ? t('up') : t('down');
+      durEl.textContent = formatDurationLabel(signal.durationSeconds);
+
+      const dt = new Date(signal.endsAt);
+      const timeStr = pad(dt.getHours()) + ':' + pad(dt.getMinutes()) + ':' + pad(dt.getSeconds());
+      untilEl.textContent = ` ${t('until')} ${timeStr}`;
+
+      statusEl.textContent = Date.now() < signal.endsAt ? t('active') : t('expired');
+      document.getElementById('timer-chip').style.display = Date.now() < signal.endsAt ? 'inline-block' : 'none';
+      setBtnLocked(Date.now() < signal.endsAt);
+    }
+
+    function setBtnLocked(locked){
+      const btn = document.getElementById('generate-btn');
+      btn.disabled = !!locked;
+    }
+
+    function startCountdown(endsAt, signal){
+      const timer = document.getElementById('timer');
+      const chip = document.getElementById('timer-chip');
+      chip.style.display = 'inline-block';
+
+      if(countdownInterval) clearInterval(countdownInterval);
+      function tick(){
+        const left = Math.max(0, Math.floor((endsAt - Date.now())/1000));
+        const mm = pad(Math.floor(left/60));
+        const ss = pad(left%60);
+        timer.textContent = mm + ':' + ss;
+        updateUI(signal);
+        if(left <= 0){
+          updateUI(null);
+          clearInterval(countdownInterval); countdownInterval = null;
+          const raw = getCookie(SIGNAL_COOKIE);
+          if(raw){
+            try {
+              const s = JSON.parse(raw);
+              document.getElementById('status').textContent = t('expired');
+              document.getElementById('timer-chip').style.display = 'none';
+              setBtnLocked(false);
+              // keep cookie to reopen after reload, but it's already expired
+            } catch(e){}
+          }
+        }
+      }
+      tick();
+      countdownInterval = setInterval(tick, 250);
+    }
+
+    function generateSignal(){
+      const pair = rand(PAIRS);
+      const dir = Math.random() < .5 ? 'up' : 'down';
+      const dur = rand(DURATIONS).seconds;
+      const endsAt = Date.now() + dur*1000;
+
+      const signal = { pair, direction: dir, durationSeconds: dur, endsAt };
+      setCookie(SIGNAL_COOKIE, JSON.stringify(signal));
+      updateUI(signal);
+      startCountdown(endsAt, signal);
+    }
+
+    function restoreSignal(){
+      const raw = getCookie(SIGNAL_COOKIE);
+      if(!raw) { updateUI(null); return; }
+      try {
+        const signal = JSON.parse(raw);
+        updateUI(signal);
+        if(Date.now() < signal.endsAt){ startCountdown(signal.endsAt, signal); }
+      } catch(e){ updateUI(null); }
+    }
+
+    function makeCopyText(){
+      const pair = document.getElementById('pair').textContent;
+      const dir = document.getElementById('direction').textContent;
+      const dur = document.getElementById('duration').textContent;
+      const timerText = document.getElementById('until').textContent.trim();
+      if(pair === '—') return '';
+      return `${pair} • ${dir} • ${dur} ${timerText}`.trim();
+    }
+
+    function copySignal(){
+      const txt = makeCopyText();
+      if(!txt) return;
+      navigator.clipboard?.writeText(txt).then(()=>{
+        toast(t('copied'));
+      }).catch(()=>{
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+        toast(t('copied'));
+      });
+    }
+
+    // Tiny toast
+    function toast(message){
+      const el = document.createElement('div');
+      el.textContent = message;
+      el.style.cssText = `position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.12);padding:10px 14px;border-radius:12px;box-shadow:var(--shadow);z-index:9999;opacity:0;transition:opacity .2s ease`;
+      document.body.appendChild(el);
+      requestAnimationFrame(()=>{ el.style.opacity = '1'; });
+      setTimeout(()=>{ el.style.opacity = '0'; setTimeout(()=>el.remove(), 200); }, 1200);
+    }
+
+    // ————— Telegram WebApp integration —————
+    function initTelegramTheme(){
+      const tg = window.Telegram && window.Telegram.WebApp;
+      if(!tg) return;
+      document.documentElement.setAttribute('data-tg-theme', '1');
+      tg.ready();
+      try { tg.expand(); } catch(e){}
+
+      // React to theme changes
+      tg.onEvent('themeChanged', () => {
+        // CSS vars are read from the UA, no extra work needed because we rely on --tg-theme-* variables.
+      });
+    }
+
+    // ————— Start —————
+    (function start(){
+      // language
+      L = i18n[getLang()];
+      applyI18n();
+
+      // init Telegram
+      initTelegramTheme();
+
+      // bind actions
+      document.getElementById('generate-btn').addEventListener('click', ()=>{
+        if(document.getElementById('generate-btn').disabled) return;
+        generateSignal();
+      });
+      document.getElementById('copy-btn').addEventListener('click', copySignal);
+
+      // restore from cookie
+      restoreSignal();
+      if(getCookie(SIGNAL_COOKIE)){
+        // if restored but already expired, keep UI showing last result with unlocked button
+        const s = JSON.parse(getCookie(SIGNAL_COOKIE));
+        if(Date.now() >= s.endsAt){ setBtnLocked(false); }
+      } else {
+        document.getElementById('status').textContent = t('idle');
+      }
+    })();
+  </script>
+</body>
+</html>
