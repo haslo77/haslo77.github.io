@@ -113,6 +113,11 @@
             position: relative;
         }
 
+        .custom-select.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
         .select-trigger {
             width: 100%;
             background: linear-gradient(135deg, #2a3142 0%, #232938 100%);
@@ -137,6 +142,16 @@
         .select-trigger.active {
             border-color: #7ba7ff;
             box-shadow: 0 0 0 3px rgba(123, 167, 255, 0.1);
+        }
+
+        .select-trigger.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .select-trigger.disabled:hover {
+            border-color: #3a4560;
+            background: linear-gradient(135deg, #2a3142 0%, #232938 100%);
         }
 
         .select-arrow {
@@ -366,7 +381,7 @@
 
         <div class="field">
             <div class="field-label" data-i18n="pair">ПАРА</div>
-            <div class="custom-select">
+            <div class="custom-select" id="pairSelectWrapper">
                 <div class="select-trigger" id="pairTrigger">
                     <span id="pairSelectedText">🎲 Рандомная пара</span>
                     <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -645,6 +660,7 @@
 
         // Элементы DOM
         const langBadge = document.getElementById('langBadge');
+        const pairSelectWrapper = document.getElementById('pairSelectWrapper');
         const pairTrigger = document.getElementById('pairTrigger');
         const pairDropdown = document.getElementById('pairDropdown');
         const pairSelectedText = document.getElementById('pairSelectedText');
@@ -660,6 +676,20 @@
         let selectedPair = null;
         let countdownInterval;
         let tradeEndTime;
+        let isTradeInProgress = false;
+
+        // Функции блокировки/разблокировки селекта пары
+        function disablePairSelect() {
+            pairSelectWrapper.classList.add('disabled');
+            pairTrigger.classList.add('disabled');
+            isTradeInProgress = true;
+        }
+
+        function enablePairSelect() {
+            pairSelectWrapper.classList.remove('disabled');
+            pairTrigger.classList.remove('disabled');
+            isTradeInProgress = false;
+        }
 
         // Пересоздание dropdown с переводом
         function rebuildPairDropdown() {
@@ -695,6 +725,12 @@
             // Обработчики событий для dropdown
             pairTrigger.addEventListener('click', (e) => {
                 e.stopPropagation();
+                
+                // Не открываем если заблокирован
+                if (isTradeInProgress) {
+                    return;
+                }
+                
                 pairTrigger.classList.toggle('active');
                 pairDropdown.classList.toggle('active');
             });
@@ -783,6 +819,9 @@
             statusEl.textContent = t('inProgress');
             statusEl.classList.remove('placeholder');
             generateBtn.disabled = true;
+            
+            // Блокируем выбор пары
+            disablePairSelect();
 
             // начальное значение
             timerEl.textContent = formatTimer(duration);
@@ -797,6 +836,9 @@
                     statusEl.textContent = t('completed');
                     statusEl.classList.remove('placeholder');
                     generateBtn.disabled = false;
+                    
+                    // Разблокируем выбор пары
+                    enablePairSelect();
                     
                     // Обновляем статус в cookies
                     const savedTrade = getCookie('lastTrade');
@@ -914,6 +956,7 @@
                     timerBadge.style.display = 'none';
                     statusEl.textContent = t('completed');
                     statusEl.classList.remove('placeholder');
+                    enablePairSelect();
                 }
             }
         }
