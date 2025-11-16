@@ -28,6 +28,18 @@
             max-width: 480px;
             width: 100%;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .header {
@@ -48,6 +60,30 @@
             height: 48px;
             background: linear-gradient(135deg, #7ba7ff 0%, #a4c4ff 100%);
             border-radius: 12px;
+            animation: gradientShift 3s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(135deg, #7ba7ff 0%, #a4c4ff 100%); }
+            50% { background: linear-gradient(135deg, #a4c4ff 0%, #7ba7ff 100%); }
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
 
         .title-section h1 {
@@ -72,11 +108,32 @@
             cursor: pointer;
             transition: all 0.3s ease;
             user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lang-badge::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(123, 167, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .lang-badge:active::before {
+            width: 200px;
+            height: 200px;
         }
 
         .lang-badge:hover {
             background: #353d52;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .field {
@@ -84,6 +141,14 @@
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 16px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .field:hover {
+            border-color: rgba(123, 167, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
         }
 
         .field-label {
@@ -102,10 +167,31 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: all 0.3s ease;
         }
 
         .field-value.placeholder {
             color: #4a5568;
+        }
+
+        .field-value.direction-up {
+            color: #22c55e;
+            text-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .field-value.direction-down {
+            color: #ef4444;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes successPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .field-value.animate-in {
+            animation: successPop 0.5s ease-out;
         }
 
         /* Custom Select */
@@ -132,16 +218,34 @@
             justify-content: space-between;
             align-items: center;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .select-trigger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(123, 167, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .select-trigger:hover::before {
+            left: 100%;
         }
 
         .select-trigger:hover {
             border-color: #7ba7ff;
             background: linear-gradient(135deg, #2f3647 0%, #272d3d 100%);
+            box-shadow: 0 0 20px rgba(123, 167, 255, 0.15);
         }
 
         .select-trigger.active {
             border-color: #7ba7ff;
-            box-shadow: 0 0 0 3px rgba(123, 167, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(123, 167, 255, 0.15);
         }
 
         .select-trigger.disabled {
@@ -197,15 +301,37 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            position: relative;
+        }
+
+        .select-option::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: linear-gradient(180deg, #7ba7ff 0%, #a4c4ff 100%);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .select-option:hover::before {
+            opacity: 1;
         }
 
         .select-option:hover {
             background: linear-gradient(90deg, rgba(123, 167, 255, 0.15) 0%, transparent 100%);
+            padding-left: 20px;
         }
 
         .select-option.selected {
             background: linear-gradient(90deg, rgba(123, 167, 255, 0.2) 0%, transparent 100%);
             color: #7ba7ff;
+        }
+
+        .select-option.selected::before {
+            opacity: 1;
         }
 
         .select-option.auto {
@@ -219,24 +345,27 @@
             height: 8px;
             border-radius: 50%;
             background: linear-gradient(135deg, #7ba7ff 0%, #a4c4ff 100%);
+            flex-shrink: 0;
         }
 
         .select-dropdown::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
 
         .select-dropdown::-webkit-scrollbar-track {
             background: #151a28;
             border-radius: 10px;
+            margin: 4px 0;
         }
 
         .select-dropdown::-webkit-scrollbar-thumb {
-            background: #3a4560;
+            background: linear-gradient(180deg, #7ba7ff 0%, #5a87d9 100%);
             border-radius: 10px;
+            border: 2px solid #151a28;
         }
 
         .select-dropdown::-webkit-scrollbar-thumb:hover {
-            background: #4a5570;
+            background: linear-gradient(180deg, #a4c4ff 0%, #7ba7ff 100%);
         }
 
         .button {
@@ -253,36 +382,70 @@
             justify-content: center;
             align-items: center;
             gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .button:active::before {
+            width: 400px;
+            height: 400px;
         }
 
         .button-primary {
-            background: #7ba7ff;
+            background: linear-gradient(135deg, #7ba7ff 0%, #a4c4ff 100%);
             color: #1e2535;
+            box-shadow: 0 4px 15px rgba(123, 167, 255, 0.3);
         }
 
         .button-primary:hover:not(:disabled) {
-            background: #a4c4ff;
+            background: linear-gradient(135deg, #a4c4ff 0%, #7ba7ff 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(123, 167, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(123, 167, 255, 0.4);
+        }
+
+        .button-primary:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         .button-primary:disabled {
             background: #3a4560;
             color: #5a6580;
             cursor: not-allowed;
+            box-shadow: none;
         }
 
         .button-secondary {
             background: #2a3142;
             color: #ffffff;
+            border: 2px solid #3a4560;
         }
 
         .button-secondary:hover {
             background: #353d52;
+            border-color: #7ba7ff;
+            box-shadow: 0 4px 15px rgba(123, 167, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .button-secondary:active {
+            transform: translateY(0);
         }
 
         .timer-badge {
-            background: #2a3142;
+            background: linear-gradient(135deg, #2a3142 0%, #232938 100%);
             color: #ffffff;
             padding: 6px 10px;
             border-radius: 8px;
@@ -293,11 +456,28 @@
             gap: 8px;
             min-width: 78px;
             justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+            border: 1px solid #3a4560;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(123, 167, 255, 0.4);
+            }
+            50% { 
+                box-shadow: 0 0 0 4px rgba(123, 167, 255, 0);
+            }
         }
 
         .timer-icon {
             width: 12px;
             height: 12px;
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* spinner for loading */
@@ -383,7 +563,7 @@
             <div class="field-label" data-i18n="pair">ПАРА</div>
             <div class="custom-select" id="pairSelectWrapper">
                 <div class="select-trigger" id="pairTrigger">
-                    <span id="pairSelectedText">🎲 Рандомная пара</span>
+                    <span id="pairSelectedText">Рандомная пара</span>
                     <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
@@ -436,11 +616,11 @@
                 randomPair: "Сгенерировать пару",
                 up: "ВВЕРХ",
                 down: "ВНИЗ",
-                inProgress: "Идёт сделка",
-                completed: "Готово",
+                inProgress: "Сделка идёт",
+                completed: "Сделка завершена",
                 generating: "Генерация...",
                 copied: "✓ Скопировано",
-                copyTemplate: "PocketOption AI Сигнал\n\nПара: {pair}\nНаправление: {direction}\nВремя: {time}\nСтатус: {status}",
+                copyTemplate: "PocketOption AI Сигнал\n\nПара: {pair}\nНаправление: {direction}\nВремя: {time}",
                 remaining: "осталось",
                 seconds: "секунд",
                 minute: "минута",
@@ -462,14 +642,14 @@
                 status: "STATUS",
                 generateBtn: "Get Signal",
                 copyBtn: "Copy",
-                randomPair: "Generate pair",
+                randomPair: "Generate Pair",
                 up: "UP",
                 down: "DOWN",
                 inProgress: "Trade in Progress",
-                completed: "Completed",
+                completed: "Trade completed",
                 generating: "Generating...",
                 copied: "✓ Copied",
-                copyTemplate: "PocketOption AI Signal\n\nPair: {pair}\nDirection: {direction}\nTime: {time}\nStatus: {status}",
+                copyTemplate: "PocketOption AI Signal\n\nPair: {pair}\nDirection: {direction}\nTime: {time}",
                 remaining: "remaining",
                 seconds: "seconds",
                 minute: "minute",
@@ -531,10 +711,11 @@
             }
 
             // Обновляем направление если оно установлено
-            if (directionEl.textContent === 'ВВЕРХ' || directionEl.textContent === 'UP') {
-                directionEl.textContent = t('up');
-            } else if (directionEl.textContent === 'ВНИЗ' || directionEl.textContent === 'DOWN') {
-                directionEl.textContent = t('down');
+            const directionText = directionEl.textContent.trim();
+            if (directionText === 'ВВЕРХ' || directionText === 'UP') {
+                updateDirection(t('up'));
+            } else if (directionText === 'ВНИЗ' || directionText === 'DOWN') {
+                updateDirection(t('down'));
             }
 
             // Обновляем статус если он установлен
@@ -547,7 +728,7 @@
 
             // Обновляем время если оно установлено
             if (timeTextEl.textContent !== '—') {
-                const savedTrade = getCookie('lastTrade');
+                const savedTrade = loadLastTrade();
                 if (savedTrade?.timeSeconds) {
                     timeTextEl.textContent = t(`timeframes.${savedTrade.timeSeconds}`);
                 }
@@ -564,87 +745,99 @@
             applyLocalization();
         }
 
-        // Конфигурация данных
+        // Конфигурация данных - отсортированные по популярности
         const CONFIG = {
             pairs: [
-                "AED/CNY OTC",
+                // Major pairs (самые популярные)
+                "EUR/USD",
+                "GBP/USD",
+                "USD/JPY",
+                "AUD/USD",
+                "USD/CAD",
+                "USD/CHF",
+                
+                // Cross pairs (кросс-курсы)
+                "EUR/GBP",
+                "EUR/JPY",
+                "GBP/JPY",
+                "EUR/CHF",
+                "AUD/JPY",
+                "GBP/AUD",
+                "GBP/CAD",
+                "EUR/CAD",
+                "CAD/JPY",
+                "CHF/JPY",
+                "EUR/AUD",
+                "AUD/CAD",
+                "AUD/CHF",
+                "CAD/CHF",
+                "GBP/CHF",
+                
+                // OTC Major
+                "EUR/USD OTC",
+                "GBP/USD OTC",
+                "USD/JPY OTC",
+                "AUD/USD OTC",
+                "USD/CAD OTC",
+                "USD/CHF OTC",
+                
+                // OTC Cross
+                "EUR/GBP OTC",
+                "EUR/JPY OTC",
+                "GBP/JPY OTC",
+                "EUR/CHF OTC",
+                "AUD/JPY OTC",
+                "GBP/AUD OTC",
+                "EUR/CAD",
+                "EUR/NZD OTC",
+                "EUR/RUB OTC",
+                "NZD/USD OTC",
+                "CAD/JPY OTC",
+                "CHF/JPY OTC",
                 "AUD/CAD OTC",
                 "AUD/CHF OTC",
                 "AUD/NZD OTC",
-                "AUD/USD",
-                "AUD/USD OTC",
-                "BHD/CNY OTC",
                 "CAD/CHF OTC",
-                "CAD/JPY OTC",
-                "CHF/JPY OTC",
-                "EUR/CAD",
-                "EUR/JPY",
-                "EUR/NZD OTC",
-                "EUR/RUB OTC",
-                "EUR/USD",
-                "EUR/USD OTC",
-                "GBP/USD",
-                "JOD/CNY OTC",
-                "MAD/USD OTC",
-                "NZD/USD OTC",
-                "OMR/CNY OTC",
-                "TND/USD OTC",
-                "USD/BDT OTC",
-                "USD/CAD OTC",
-                "USD/CLP OTC",
-                "USD/EGP OTC",
-                "USD/PHP OTC",
-                "USD/SGD OTC",
-                "USD/THB OTC",
-                "USD/VND OTC",
-                "YER/USD OTC",
-                "ZAR/USD OTC",
-                "AUD/JPY OTC",
-                "USD/IDR OTC",
                 "NZD/JPY OTC",
+                "CHF/NOK OTC",
+                
+                // OTC Exotic (экзотические пары)
                 "EUR/TRY OTC",
-                "GBP/CHF",
-                "CAD/JPY",
-                "LBP/USD OTC",
-                "GBP/AUD",
-                "USD/CHF OTC",
-                "AUD/CHF",
-                "SAR/CNY OTC",
-                "AUD/CAD",
-                "EUR/AUD",
-                "AUD/JPY",
-                "CAD/CHF",
-                "EUR/CHF",
-                "EUR/GBP",
-                "USD/CHF",
-                "USD/JPY",
-                "GBP/CAD",
-                "USD/ARS OTC",
+                "EUR/HUF OTC",
+                "USD/RUB OTC",
+                "USD/CNH OTC",
+                "USD/MXN OTC",
                 "USD/BRL OTC",
+                "USD/INR OTC",
+                "USD/IDR OTC",
+                "USD/THB OTC",
+                "USD/SGD OTC",
+                "USD/MYR OTC",
+                "USD/PHP OTC",
+                "USD/VND OTC",
+                "USD/ARS OTC",
+                "USD/CLP OTC",
+                "USD/COP OTC",
+                "USD/EGP OTC",
                 "USD/DZD OTC",
                 "USD/PKR OTC",
-                "GBP/JPY",
+                "USD/BDT OTC",
+                "ZAR/USD OTC",
                 "NGN/USD OTC",
-                "EUR/CHF OTC",
-                "GBP/JPY OTC",
-                "CHF/NOK OTC",
-                "UAH/USD OTC",
-                "USD/INR OTC",
-                "USD/MXN OTC",
-                "CHF/JPY",
-                "USD/JPY OTC",
-                "USD/CAD",
-                "USD/RUB OTC",
-                "QAR/CNY OTC",
-                "USD/CNH OTC",
-                "GBP/AUD OTC",
-                "EUR/GBP OTC",
                 "KES/USD OTC",
-                "USD/COP OTC",
-                "EUR/HUF OTC",
-                "EUR/JPY OTC",
-                "GBP/USD OTC",
-                "USD/MYR OTC"
+                "UAH/USD OTC",
+                
+                // Middle East OTC
+                "AED/CNY OTC",
+                "SAR/CNY OTC",
+                "QAR/CNY OTC",
+                "BHD/CNY OTC",
+                "OMR/CNY OTC",
+                "JOD/CNY OTC",
+                "LBP/USD OTC",
+                "YER/USD OTC",
+                "MAD/USD OTC",
+                "TND/USD OTC"
             ],
             
             getDirections: () => [t('up'), t('down')],
@@ -689,6 +882,22 @@
             pairSelectWrapper.classList.remove('disabled');
             pairTrigger.classList.remove('disabled');
             isTradeInProgress = false;
+        }
+
+        // Обновление направления с цветом
+        function updateDirection(direction) {
+            directionEl.textContent = direction;
+            directionEl.classList.remove('placeholder', 'direction-up', 'direction-down');
+            
+            // Добавляем класс в зависимости от направления
+            if (direction === t('up')) {
+                directionEl.classList.add('direction-up');
+            } else {
+                directionEl.classList.add('direction-down');
+            }
+            
+            directionEl.classList.add('animate-in');
+            setTimeout(() => directionEl.classList.remove('animate-in'), 500);
         }
 
         // Пересоздание dropdown с переводом
@@ -766,29 +975,73 @@
             });
         }
 
-        // Функции для работы с cookies
-        function setCookie(name, value, days) {
-            const expires = new Date();
-            expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-            document.cookie = `${name}=${JSON.stringify(value)};expires=${expires.toUTCString()};path=/`;
+        // ----------------------------
+        // STORAGE / COOKIE HELPERS
+        // ----------------------------
+
+        // Сохранение cookie с атрибутами; значение кодируем
+        function setCookieRaw(name, value, days) {
+            try {
+                const cookieValue = encodeURIComponent(value);
+                const maxAge = typeof days === 'number' ? `; max-age=${days*24*60*60}` : '';
+                document.cookie = `${name}=${cookieValue}; path=/${maxAge}; SameSite=None; Secure`;
+            } catch (e) {
+                // ignore
+            }
         }
 
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for(let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) === 0) {
-                    try {
-                        return JSON.parse(c.substring(nameEQ.length, c.length));
-                    } catch {
-                        return null;
-                    }
+        function getCookieRaw(name) {
+            const parts = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+            if (!parts) return null;
+            const val = parts.split('=').slice(1).join('=');
+            try {
+                return decodeURIComponent(val);
+            } catch (e) {
+                return val;
+            }
+        }
+
+        // Универсальные save/load — пробуют localStorage, затем cookie
+        function saveLastTrade(trade) {
+            const json = JSON.stringify(trade);
+            // localStorage
+            try {
+                localStorage.setItem('lastTrade', json);
+            } catch (e) {
+                // возможно отключён localStorage
+            }
+            // cookie fallback
+            setCookieRaw('lastTrade', json, 7);
+        }
+
+        function loadLastTrade() {
+            // пробуем localStorage
+            try {
+                const ls = localStorage.getItem('lastTrade');
+                if (ls) {
+                    return JSON.parse(ls);
                 }
+            } catch (e) {
+                // ignore
+            }
+            // fallback cookie
+            try {
+                const c = getCookieRaw('lastTrade');
+                if (c) return JSON.parse(c);
+            } catch (e) {
+                return null;
             }
             return null;
         }
+
+        function removeLastTrade() {
+            try { localStorage.removeItem('lastTrade'); } catch (e) {}
+            try { document.cookie = 'lastTrade=; path=/; max-age=0; SameSite=None; Secure'; } catch (e) {}
+        }
+
+        // ----------------------------
+        // / STORAGE HELPERS
+        // ----------------------------
 
         // Функция получения случайного элемента из массива
         function getRandomItem(array) {
@@ -818,6 +1071,8 @@
             timerBadge.style.display = 'inline-flex';
             statusEl.textContent = t('inProgress');
             statusEl.classList.remove('placeholder');
+            statusEl.classList.add('animate-in');
+            setTimeout(() => statusEl.classList.remove('animate-in'), 500);
             generateBtn.disabled = true;
             
             // Блокируем выбор пары
@@ -835,16 +1090,18 @@
                     timerBadge.style.display = 'none';
                     statusEl.textContent = t('completed');
                     statusEl.classList.remove('placeholder');
+                    statusEl.classList.add('animate-in');
+                    setTimeout(() => statusEl.classList.remove('animate-in'), 500);
                     generateBtn.disabled = false;
                     
                     // Разблокируем выбор пары
                     enablePairSelect();
                     
-                    // Обновляем статус в cookies
-                    const savedTrade = getCookie('lastTrade');
+                    // Обновляем статус в storage
+                    const savedTrade = loadLastTrade();
                     if (savedTrade) {
                         savedTrade.status = t('completed');
-                        setCookie('lastTrade', savedTrade, 7);
+                        saveLastTrade(savedTrade);
                     }
                 }
             }, 1000);
@@ -865,15 +1122,16 @@
                 endTime: Date.now() + timeframe.seconds * 1000
             };
 
-            // Сохраняем в cookies
-            setCookie('lastTrade', trade, 7);
+            // Сохраняем в localStorage + cookie
+            saveLastTrade(trade);
 
             // Отображаем данные
-            directionEl.textContent = direction;
-            directionEl.classList.remove('placeholder');
+            updateDirection(direction);
             
             timeTextEl.textContent = timeframe.label;
             timeTextEl.classList.remove('placeholder');
+            timeTextEl.classList.add('animate-in');
+            setTimeout(() => timeTextEl.classList.remove('animate-in'), 500);
 
             // Обновляем выбранную пару в dropdown, если была рандомная
             if (!selectedPair) {
@@ -897,32 +1155,74 @@
             }, 1200);
         }
 
-        // Копирование данных
+        // Копирование данных - УЛУЧШЕННАЯ ВЕРСИЯ
         function copyToClipboard() {
-            const savedTrade = getCookie('lastTrade');
+            const savedTrade = loadLastTrade();
             const pair = selectedPair || savedTrade?.pair || t('randomPair');
-            const direction = directionEl.textContent;
+            const directionText = directionEl.textContent.trim();
             const timeDisplay = timeTextEl.textContent === '—' ? '—' : `${timeTextEl.textContent} ${timerBadge.style.display !== 'none' ? `(${timerEl.textContent} ${t('remaining')})` : ''}`;
             const status = statusEl.textContent;
 
             const text = t('copyTemplate')
                 .replace('{pair}', pair)
-                .replace('{direction}', direction)
+                .replace('{direction}', directionText)
                 .replace('{time}', timeDisplay)
                 .replace('{status}', status);
 
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = copyBtn.textContent;
-                copyBtn.textContent = t('copied');
-                setTimeout(() => {
-                    copyBtn.textContent = originalText;
-                }, 2000);
-            });
+            // Попытка 1: Современный Clipboard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopySuccess();
+                }).catch(() => {
+                    // Fallback на старый метод
+                    fallbackCopy(text);
+                });
+            } else {
+                // Fallback на старый метод
+                fallbackCopy(text);
+            }
+        }
+
+        // Fallback метод копирования для старых браузеров
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '-9999px';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess();
+                } else {
+                    // Последний fallback - показать текст для ручного копирования
+                    prompt('Скопируйте этот текст:', text);
+                }
+            } catch (err) {
+                prompt('Скопируйте этот текст:', text);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // Показать успешное копирование
+        function showCopySuccess() {
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = t('copied');
+            copyBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.style.background = '';
+            }, 2000);
         }
 
         // Восстановление данных при загрузке
         function restoreLastTrade() {
-            const savedTrade = getCookie('lastTrade');
+            const savedTrade = loadLastTrade();
             if (savedTrade) {
                 const timeRemaining = Math.max(0, Math.floor((savedTrade.endTime - Date.now()) / 1000));
 
@@ -939,9 +1239,7 @@
                 }
                 
                 if (savedTrade.direction) {
-                    // Направление может быть на любом языке, оставляем как есть
-                    directionEl.textContent = savedTrade.direction;
-                    directionEl.classList.remove('placeholder');
+                    updateDirection(savedTrade.direction);
                 }
 
                 if (savedTrade.timeSeconds) {
